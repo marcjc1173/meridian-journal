@@ -9,6 +9,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { JournalPage } from './pages/JournalPage';
 import { PromptsPage } from './pages/PromptsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { InstallPwaPrompt } from './components/InstallPwaPrompt';
 import type { Prompt } from './types';
 
 function AppShell() {
@@ -66,6 +67,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <AppShell />
+        <InstallPwaPrompt />
       </AuthProvider>
     </ThemeProvider>
   );

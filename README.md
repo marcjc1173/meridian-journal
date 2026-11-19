@@ -2,6 +2,8 @@
 
 **A quiet, private, self-hosted daily journal built for men navigating midlife (45–60).**
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-d9923b?style=flat&logo=buy-me-a-coffee&logoColor=141517)](https://buymeacoffee.com/marcjc1173)
+
 ---
 
 ## Why Meridian Exists
@@ -83,6 +85,10 @@ npm run dev:client
 ## Contributing
 
 Contributions are welcome—especially **new midlife reflection prompts** (see `server/src/prompts.ts`), UI polish, and export/backup features. Keep the tone honest, grounded, and practical.
+
+## Support
+
+Meridian is free and open-source. If it's been helpful to you and you'd like to support its development, you can [buy me a coffee](https://buymeacoffee.com/marcjc1173).
 
 ## License
 
