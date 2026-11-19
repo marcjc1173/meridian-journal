@@ -33,7 +33,7 @@ Most journaling apps are either cloud subscriptions, generic blank pages, or fil
 ## Quick Start (Docker — Recommended)
 
 ```bash
-git clone https://github.com/<your-username>/meridian-journal.git
+git clone https://github.com/marcjc1173/meridian-journal.git
 cd meridian-journal
 docker compose up -d --build
 ```
