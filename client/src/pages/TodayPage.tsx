@@ -10,7 +10,12 @@ import {
   type Prompt,
 } from '../types';
 import { QuestionOfDay } from '../components/QuestionOfDay';
-import { EntryEditor } from '../components/EntryEditor';
+import {
+  clearSavedDraft,
+  EntryEditor,
+  loadSavedDraft,
+  NEW_DRAFT_KEY,
+} from '../components/EntryEditor';
 import { EntryCard } from '../components/EntryCard';
 import { BackOnThisDay } from '../components/BackOnThisDay';
 
@@ -43,6 +48,9 @@ export function TodayPage({
   const [isComposing, setIsComposing] = useState(false);
   const [activePrompt, setActivePrompt] = useState<Prompt | null>(null);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
+  const [hasUnsavedDraft, setHasUnsavedDraft] = useState(() =>
+    Boolean(loadSavedDraft(NEW_DRAFT_KEY))
+  );
 
   const loadData = useCallback(async () => {
     try {
@@ -126,6 +134,7 @@ export function TodayPage({
     setIsComposing(false);
     setEditingEntry(null);
     setActivePrompt(null);
+    setHasUnsavedDraft(Boolean(loadSavedDraft(NEW_DRAFT_KEY)));
     loadData();
   };
 
@@ -181,6 +190,40 @@ export function TodayPage({
         </div>
       </header>
 
+      {/* Unsaved draft banner (e.g. after Auto-Lock or refresh) */}
+      {!isComposing && hasUnsavedDraft && (
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm"
+          style={{
+            backgroundColor: 'var(--accent-soft)',
+            borderColor: 'var(--accent)',
+          }}
+        >
+          <span>You have an unsaved draft waiting.</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                clearSavedDraft(NEW_DRAFT_KEY);
+                setHasUnsavedDraft(false);
+              }}
+              className="rounded-lg border px-3 py-1 text-xs font-medium"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
+            >
+              Discard
+            </button>
+            <button
+              type="button"
+              onClick={handleStartFreeWrite}
+              className="rounded-lg px-3 py-1 text-xs font-semibold text-stone-950"
+              style={{ backgroundColor: 'var(--accent)' }}
+            >
+              Resume Draft
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Editor when composing or editing */}
       {isComposing && (
         <EntryEditor
@@ -192,6 +235,7 @@ export function TodayPage({
             setIsComposing(false);
             setEditingEntry(null);
             setActivePrompt(null);
+            setHasUnsavedDraft(Boolean(loadSavedDraft(NEW_DRAFT_KEY)));
           }}
         />
       )}

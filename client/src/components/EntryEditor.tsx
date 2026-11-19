@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Calendar,
   Camera,
@@ -21,6 +21,37 @@ import {
   type Prompt,
 } from '../types';
 
+export const NEW_DRAFT_KEY = 'meridian-draft-new';
+
+export interface SavedDraft {
+  title: string;
+  content: string;
+  entryDate: string;
+  entryTime: string;
+  mood: string | null;
+  energy: number | null;
+  promptId: number | null;
+  promptText: string | null;
+  tags: string[];
+  updatedAt: number;
+}
+
+export function loadSavedDraft(key: string): SavedDraft | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as SavedDraft;
+    if (!parsed.title?.trim() && !parsed.content?.trim()) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function clearSavedDraft(key: string): void {
+  localStorage.removeItem(key);
+}
+
 interface EntryEditorProps {
   initialEntry?: Entry | null;
   initialDate?: string;
@@ -42,21 +73,48 @@ export function EntryEditor({
   onCancel,
 }: EntryEditorProps) {
   const isEditing = Boolean(initialEntry);
-  const [title, setTitle] = useState(initialEntry?.title || '');
-  const [content, setContent] = useState(initialEntry?.content || '');
-  const [entryDate, setEntryDate] = useState(
-    initialEntry?.entry_date || initialDate || getTodayYmd()
+  const draftKey = initialEntry ? `meridian-draft-${initialEntry.id}` : NEW_DRAFT_KEY;
+  const restoredDraft = useRef<SavedDraft | null>(
+    initialPrompt ? null : loadSavedDraft(draftKey)
   );
-  const [entryTime, setEntryTime] = useState(initialEntry?.entry_time || getNowHm());
-  const [mood, setMood] = useState<string | null>(initialEntry?.mood || null);
-  const [energy, setEnergy] = useState<number | null>(initialEntry?.energy || null);
+
+  const [title, setTitle] = useState(
+    restoredDraft.current?.title ?? initialEntry?.title ?? ''
+  );
+  const [content, setContent] = useState(
+    restoredDraft.current?.content ?? initialEntry?.content ?? ''
+  );
+  const [entryDate, setEntryDate] = useState(
+    restoredDraft.current?.entryDate ??
+      initialEntry?.entry_date ??
+      initialDate ??
+      getTodayYmd()
+  );
+  const [entryTime, setEntryTime] = useState(
+    restoredDraft.current?.entryTime ?? initialEntry?.entry_time ?? getNowHm()
+  );
+  const [mood, setMood] = useState<string | null>(
+    restoredDraft.current ? restoredDraft.current.mood : initialEntry?.mood ?? null
+  );
+  const [energy, setEnergy] = useState<number | null>(
+    restoredDraft.current ? restoredDraft.current.energy : initialEntry?.energy ?? null
+  );
   const [promptId, setPromptId] = useState<number | null>(
-    initialEntry?.prompt_id ?? initialPrompt?.id ?? null
+    restoredDraft.current
+      ? restoredDraft.current.promptId
+      : initialEntry?.prompt_id ?? initialPrompt?.id ?? null
   );
   const [promptText, setPromptText] = useState<string | null>(
-    initialEntry?.prompt_text ?? initialPrompt?.question ?? null
+    restoredDraft.current
+      ? restoredDraft.current.promptText
+      : initialEntry?.prompt_text ?? initialPrompt?.question ?? null
   );
-  const [tags, setTags] = useState<string[]>(initialEntry?.tags || []);
+  const [tags, setTags] = useState<string[]>(
+    restoredDraft.current?.tags ?? initialEntry?.tags ?? []
+  );
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'restored' | 'saved'>(
+    restoredDraft.current ? 'restored' : 'idle'
+  );
   const [tagInput, setTagInput] = useState('');
   const [existingPhotos, setExistingPhotos] = useState<Photo[]>(
     initialEntry?.photos || []
@@ -67,6 +125,53 @@ export function EntryEditor({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save draft to localStorage so Auto-Lock or accidental refresh never loses writing
+  useEffect(() => {
+    const hasText = Boolean(title.trim() || content.trim());
+    const timer = window.setTimeout(() => {
+      if (!hasText) {
+        clearSavedDraft(draftKey);
+        return;
+      }
+      const draft: SavedDraft = {
+        title,
+        content,
+        entryDate,
+        entryTime,
+        mood,
+        energy,
+        promptId,
+        promptText,
+        tags,
+        updatedAt: Date.now(),
+      };
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+        setDraftStatus('saved');
+      } catch {
+        // ignore storage quota errors
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    draftKey,
+    title,
+    content,
+    entryDate,
+    entryTime,
+    mood,
+    energy,
+    promptId,
+    promptText,
+    tags,
+  ]);
+
+  const handleDiscardAndCancel = () => {
+    clearSavedDraft(draftKey);
+    onCancel();
+  };
 
   const addTag = (raw: string) => {
     const cleaned = raw.trim().toLowerCase().replace(/^#/, '');
@@ -163,6 +268,7 @@ export function EntryEditor({
         pendingFiles.forEach((p) => URL.revokeObjectURL(p.previewUrl));
       }
 
+      clearSavedDraft(draftKey);
       onSaved(savedEntry);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save entry.');
@@ -227,15 +333,22 @@ export function EntryEditor({
           </label>
         </div>
 
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg p-1.5 transition hover:opacity-80"
-          style={{ color: 'var(--text-muted)' }}
-          aria-label="Cancel"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {draftStatus !== 'idle' && (
+            <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              {draftStatus === 'restored' ? 'Draft restored' : 'Draft saved'}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleDiscardAndCancel}
+            className="rounded-lg p-1.5 transition hover:opacity-80"
+            style={{ color: 'var(--text-muted)' }}
+            aria-label="Cancel"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Prompt banner if answering a question */}
@@ -501,7 +614,7 @@ export function EntryEditor({
       <div className="mt-5 flex items-center justify-end gap-2.5">
         <button
           type="button"
-          onClick={onCancel}
+          onClick={handleDiscardAndCancel}
           className="rounded-lg border px-4 py-2 text-sm font-medium transition hover:opacity-80"
           style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}
         >
