@@ -46,6 +46,8 @@ router.get('/status', (req, res) => {
     db.prepare('SELECT COUNT(*) as count FROM passkeys').get() as { count: number }
   ).count;
   const displayName = getSetting('display_name') || '';
+  const autoLockMinutes = Number(getSetting('auto_lock_minutes') || '0') || 0;
+  const lockOnClose = getSetting('lock_on_close') === '1';
 
   res.json({
     setupComplete,
@@ -53,6 +55,8 @@ router.get('/status', (req, res) => {
     hasPasskeys: passkeyCount > 0,
     passkeyCount,
     displayName: authenticated ? displayName : '',
+    autoLockMinutes: authenticated ? autoLockMinutes : 0,
+    lockOnClose: authenticated ? lockOnClose : false,
   });
 });
 
@@ -129,6 +133,28 @@ router.put('/profile', requireAuth, (req, res) => {
   const { displayName } = req.body as { displayName?: string };
   setSetting('display_name', (displayName || '').trim().slice(0, 60));
   res.json({ ok: true, displayName: getSetting('display_name') || '' });
+});
+
+// PUT /api/auth/auto-lock
+router.put('/auto-lock', requireAuth, (req, res) => {
+  const { autoLockMinutes, lockOnClose } = req.body as {
+    autoLockMinutes?: number;
+    lockOnClose?: boolean;
+  };
+  const allowed = [0, 1, 5, 15, 30, 60];
+  if (typeof autoLockMinutes === 'number' && allowed.includes(autoLockMinutes)) {
+    setSetting('auto_lock_minutes', String(autoLockMinutes));
+  }
+  if (typeof lockOnClose === 'boolean') {
+    setSetting('lock_on_close', lockOnClose ? '1' : '0');
+  }
+  // Re-issue cookie so session vs persistent maxAge takes effect immediately
+  setSessionCookie(req, res);
+  res.json({
+    ok: true,
+    autoLockMinutes: Number(getSetting('auto_lock_minutes') || '0') || 0,
+    lockOnClose: getSetting('lock_on_close') === '1',
+  });
 });
 
 // ---------------- Passkey (WebAuthn) ----------------

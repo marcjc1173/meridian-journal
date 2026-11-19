@@ -4,7 +4,7 @@ import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 export function AuthPage() {
-  const { status, refresh } = useAuth();
+  const { status, refresh, markUnlocked } = useAuth();
   const isSetup = status ? !status.setupComplete : false;
 
   const [displayName, setDisplayName] = useState('');
@@ -36,6 +36,7 @@ export function AuthPage() {
       } else {
         await api.login(password);
       }
+      markUnlocked();
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed.');
@@ -49,6 +50,7 @@ export function AuthPage() {
     setPasskeyLoading(true);
     try {
       await api.loginWithPasskey();
+      markUnlocked();
       await refresh();
     } catch (err) {
       setError(

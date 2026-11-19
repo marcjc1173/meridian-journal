@@ -49,6 +49,8 @@ export interface AuthStatus {
   hasPasskeys: boolean;
   passkeyCount: number;
   displayName: string;
+  autoLockMinutes: number;
+  lockOnClose: boolean;
 }
 
 export interface PasskeyItem {

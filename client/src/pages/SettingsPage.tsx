@@ -4,6 +4,7 @@ import {
   Fingerprint,
   KeyRound,
   Loader2,
+  Lock,
   Moon,
   Smartphone,
   Sun,
@@ -14,9 +15,22 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import type { PasskeyItem } from '../types';
 
+const AUTO_LOCK_OPTIONS = [
+  { minutes: 0, label: 'Never' },
+  { minutes: 1, label: '1 min' },
+  { minutes: 5, label: '5 min' },
+  { minutes: 15, label: '15 min' },
+  { minutes: 30, label: '30 min' },
+  { minutes: 60, label: '1 hour' },
+];
+
 export function SettingsPage() {
-  const { status, refresh } = useAuth();
+  const { status, refresh, markUnlocked } = useAuth();
   const { theme, setTheme } = useTheme();
+
+  const [autoLockMinutes, setAutoLockMinutes] = useState(status?.autoLockMinutes ?? 0);
+  const [lockOnClose, setLockOnClose] = useState(status?.lockOnClose ?? false);
+  const [autoLockSaved, setAutoLockSaved] = useState(false);
 
   const [displayName, setDisplayName] = useState(status?.displayName || '');
   const [profileSaved, setProfileSaved] = useState(false);
@@ -51,6 +65,18 @@ export function SettingsPage() {
     await refresh();
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
+  };
+
+  const handleUpdateAutoLock = async (nextMinutes: number, nextLockOnClose: boolean) => {
+    setAutoLockMinutes(nextMinutes);
+    setLockOnClose(nextLockOnClose);
+    if (nextLockOnClose) {
+      markUnlocked();
+    }
+    await api.updateAutoLock(nextMinutes, nextLockOnClose);
+    await refresh();
+    setAutoLockSaved(true);
+    setTimeout(() => setAutoLockSaved(false), 1800);
   };
 
   const handleRegisterPasskey = async (e: React.FormEvent) => {
@@ -202,6 +228,89 @@ export function SettingsPage() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Auto-Lock */}
+      <section
+        className="rounded-xl border p-5 space-y-4"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div
+              className="rounded-lg p-2"
+              style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}
+            >
+              <Lock className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold">Auto-Lock</h2>
+              <p className="mt-0.5 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Automatically lock your journal when you close the app or after a period of
+                inactivity.
+              </p>
+            </div>
+          </div>
+          {autoLockSaved && (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500">
+              <Check className="h-3.5 w-3.5" />
+              Saved
+            </span>
+          )}
+        </div>
+
+        <label
+          className="flex items-center justify-between gap-3 rounded-lg border px-3.5 py-3 cursor-pointer"
+          style={{
+            backgroundColor: 'var(--bg-subtle)',
+            borderColor: 'var(--border)',
+          }}
+        >
+          <div>
+            <div className="text-sm font-medium">Lock when browser or app closes</div>
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Require unlocking again whenever you reopen Meridian.
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={lockOnClose}
+            onChange={(e) => handleUpdateAutoLock(autoLockMinutes, e.target.checked)}
+            className="h-4 w-4 accent-amber-500"
+          />
+        </label>
+
+        <div>
+          <div
+            className="mb-2 text-xs font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            Lock after inactivity
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {AUTO_LOCK_OPTIONS.map((opt) => {
+              const active = autoLockMinutes === opt.minutes;
+              return (
+                <button
+                  key={opt.minutes}
+                  type="button"
+                  onClick={() => handleUpdateAutoLock(opt.minutes, lockOnClose)}
+                  className="rounded-lg border px-3 py-1.5 text-xs font-medium transition"
+                  style={{
+                    borderColor: active ? 'var(--accent)' : 'var(--border)',
+                    backgroundColor: active ? 'var(--accent-soft)' : 'transparent',
+                    color: active ? 'var(--accent)' : 'var(--text-muted)',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* Appearance */}

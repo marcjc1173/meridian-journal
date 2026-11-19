@@ -61,6 +61,14 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ displayName }),
     }),
+  updateAutoLock: (autoLockMinutes: number, lockOnClose: boolean) =>
+    request<{ ok: boolean; autoLockMinutes: number; lockOnClose: boolean }>(
+      '/api/auth/auto-lock',
+      {
+        method: 'PUT',
+        body: JSON.stringify({ autoLockMinutes, lockOnClose }),
+      }
+    ),
 
   // Passkeys
   listPasskeys: () => request<{ passkeys: PasskeyItem[] }>('/api/auth/passkeys'),

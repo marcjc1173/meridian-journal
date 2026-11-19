@@ -77,12 +77,13 @@ export function setSessionCookie(req: Request, res: Response): void {
   const token = signToken(payload);
   const isHttps =
     req.secure || req.headers['x-forwarded-proto'] === 'https';
+  const lockOnClose = getSetting('lock_on_close') === '1';
 
   res.cookie(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: isHttps,
-    maxAge: SESSION_MAX_AGE_MS,
+    ...(lockOnClose ? {} : { maxAge: SESSION_MAX_AGE_MS }),
     path: '/',
   });
 }
