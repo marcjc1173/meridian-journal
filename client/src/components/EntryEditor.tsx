@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   Calendar,
+  Camera,
   Clock,
   ImagePlus,
   Loader2,
@@ -65,6 +66,7 @@ export function EntryEditor({
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const addTag = (raw: string) => {
     const cleaned = raw.trim().toLowerCase().replace(/^#/, '');
@@ -390,7 +392,21 @@ export function EntryEditor({
             type="file"
             accept="image/*"
             multiple
-            onChange={(e) => handleFilesSelected(e.target.files)}
+            onChange={(e) => {
+              handleFilesSelected(e.target.files);
+              e.target.value = '';
+            }}
+            className="hidden"
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(e) => {
+              handleFilesSelected(e.target.files);
+              e.target.value = '';
+            }}
             className="hidden"
           />
 
@@ -441,21 +457,37 @@ export function EntryEditor({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={`inline-flex items-center gap-2 rounded-lg border border-dashed px-3.5 py-2 text-xs font-medium transition ${
-              isDragging ? 'scale-[1.01]' : ''
-            }`}
-            style={{
-              borderColor: isDragging ? 'var(--accent)' : 'var(--border)',
-              color: 'var(--text-muted)',
-              backgroundColor: isDragging ? 'var(--accent-soft)' : 'transparent',
-            }}
-          >
-            <ImagePlus className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-            Add photos (or drop images here)
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-medium transition hover:opacity-85"
+              style={{
+                borderColor: 'var(--border)',
+                backgroundColor: 'var(--bg-subtle)',
+                color: 'var(--text)',
+              }}
+            >
+              <Camera className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+              Take Photo
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`inline-flex items-center gap-2 rounded-lg border border-dashed px-3.5 py-2 text-xs font-medium transition ${
+                isDragging ? 'scale-[1.01]' : ''
+              }`}
+              style={{
+                borderColor: isDragging ? 'var(--accent)' : 'var(--border)',
+                color: 'var(--text-muted)',
+                backgroundColor: isDragging ? 'var(--accent-soft)' : 'transparent',
+              }}
+            >
+              <ImagePlus className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+              Choose Photos
+            </button>
+          </div>
         </div>
       </div>
 
