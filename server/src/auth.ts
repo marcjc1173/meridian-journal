@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { getSetting, setSetting } from './db.js';
 
-const SESSION_COOKIE = 'meridian_session';
+const SESSION_COOKIE = 'midline_session';
 const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 function getSessionSecret(): string {
@@ -115,7 +115,7 @@ export function getWebAuthnConfig(req: Request): {
   origin: string;
   rpName: string;
 } {
-  const rpName = process.env.RP_NAME || 'Meridian Journal';
+  const rpName = process.env.RP_NAME || 'Midline Journal';
 
   const headerOrigin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
   const proto =

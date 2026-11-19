@@ -36,7 +36,7 @@ interface PasskeyRow {
 let pendingRegChallenge: { challenge: string; expiresAt: number } | null = null;
 let pendingAuthChallenge: { challenge: string; expiresAt: number } | null = null;
 
-const OWNER_USER_ID = new TextEncoder().encode('meridian-journal-owner');
+const OWNER_USER_ID = new TextEncoder().encode('midline-journal-owner');
 
 // GET /api/auth/status
 router.get('/status', (req, res) => {

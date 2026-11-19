@@ -23,7 +23,7 @@ app.use(express.json({ limit: '2mb' }));
 
 // Health check
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, app: 'meridian-journal' });
+  res.json({ ok: true, app: 'midline-journal' });
 });
 
 // Auth routes (public + partially protected internally)
@@ -63,6 +63,6 @@ app.use(
 );
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Meridian Journal server running on http://0.0.0.0:${PORT}`);
+  console.log(`Midline Journal server running on http://0.0.0.0:${PORT}`);
   console.log(`Data directory: ${DATA_DIR}`);
 });

@@ -11,7 +11,16 @@ fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 fs.mkdirSync(THUMBS_DIR, { recursive: true });
 
-const DB_PATH = path.join(DATA_DIR, 'meridian.db');
+const LEGACY_DB_PATH = path.join(DATA_DIR, 'meridian.db');
+const DB_PATH = path.join(DATA_DIR, 'midline.db');
+if (!fs.existsSync(DB_PATH) && fs.existsSync(LEGACY_DB_PATH)) {
+  fs.renameSync(LEGACY_DB_PATH, DB_PATH);
+  for (const ext of ['-wal', '-shm']) {
+    if (fs.existsSync(LEGACY_DB_PATH + ext)) {
+      fs.renameSync(LEGACY_DB_PATH + ext, DB_PATH + ext);
+    }
+  }
+}
 export const db = new Database(DB_PATH);
 
 db.pragma('journal_mode = WAL');

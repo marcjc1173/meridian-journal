@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Meridian Journal",
-  "short_name": "Meridian",
+  "name": "Midline Journal",
+  "short_name": "Midline",
   "description": "Private self-hosted daily journal for men navigating midlife",
   "start_url": "/",
   "scope": "/",

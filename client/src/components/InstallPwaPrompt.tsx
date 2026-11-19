@@ -6,7 +6,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISS_KEY = 'meridian-pwa-dismissed';
+const DISMISS_KEY = 'midline-pwa-dismissed';
 
 function isStandaloneMode(): boolean {
   return (
@@ -78,9 +78,9 @@ export function InstallPwaPrompt() {
           borderColor: 'var(--accent)',
         }}
       >
-        <img src="/icon.svg" alt="Meridian" className="h-10 w-10 shrink-0 rounded-lg" />
+        <img src="/icon.svg" alt="Midline" className="h-10 w-10 shrink-0 rounded-lg" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold">Install Meridian</div>
+          <div className="text-sm font-semibold">Install Midline</div>
           {deferredPrompt ? (
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Add to your home screen for quick daily check-ins.

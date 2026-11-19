@@ -21,7 +21,7 @@ import {
   type Prompt,
 } from '../types';
 
-export const NEW_DRAFT_KEY = 'meridian-draft-new';
+export const NEW_DRAFT_KEY = 'midline-draft-new';
 
 export interface SavedDraft {
   title: string;
@@ -73,7 +73,7 @@ export function EntryEditor({
   onCancel,
 }: EntryEditorProps) {
   const isEditing = Boolean(initialEntry);
-  const draftKey = initialEntry ? `meridian-draft-${initialEntry.id}` : NEW_DRAFT_KEY;
+  const draftKey = initialEntry ? `midline-draft-${initialEntry.id}` : NEW_DRAFT_KEY;
   const restoredDraft = useRef<SavedDraft | null>(
     initialPrompt ? null : loadSavedDraft(draftKey)
   );

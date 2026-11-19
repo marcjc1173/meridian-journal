@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('meridian-theme');
+    const saved = localStorage.getItem('midline-theme');
     return saved === 'light' ? 'light' : 'dark';
   });
 
@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('meridian-theme', theme);
+    localStorage.setItem('midline-theme', theme);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
       meta.setAttribute('content', theme === 'dark' ? '#141517' : '#f6f2ea');

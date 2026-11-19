@@ -43,9 +43,9 @@ export function Layout({ activeTab, onTabChange, children }: LayoutProps) {
         }}
       >
         <div className="flex items-center gap-2.5 px-2 mb-8">
-          <img src="/icon.svg" alt="Meridian" className="h-8 w-8 rounded-lg" />
+          <img src="/icon.svg" alt="Midline" className="h-8 w-8 rounded-lg" />
           <div>
-            <div className="text-base font-bold tracking-tight leading-none">Meridian</div>
+            <div className="text-base font-bold tracking-tight leading-none">Midline</div>
             <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
               {status?.displayName ? `${status.displayName}'s Journal` : 'Personal Journal'}
             </div>
@@ -108,8 +108,8 @@ export function Layout({ activeTab, onTabChange, children }: LayoutProps) {
         }}
       >
         <div className="flex items-center gap-2">
-          <img src="/icon.svg" alt="Meridian" className="h-7 w-7 rounded-md" />
-          <span className="font-bold tracking-tight">Meridian</span>
+          <img src="/icon.svg" alt="Midline" className="h-7 w-7 rounded-md" />
+          <span className="font-bold tracking-tight">Midline</span>
         </div>
         <div className="flex items-center gap-1">
           <button

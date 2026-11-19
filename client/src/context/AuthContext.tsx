@@ -2,8 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { api } from '../api';
 import type { AuthStatus } from '../types';
 
-export const TAB_UNLOCKED_KEY = 'meridian_tab_unlocked';
-export const LAST_ACTIVITY_KEY = 'meridian_last_activity';
+export const TAB_UNLOCKED_KEY = 'midline_tab_unlocked';
+export const LAST_ACTIVITY_KEY = 'midline_last_activity';
 
 interface AuthContextValue {
   status: AuthStatus | null;

@@ -1,18 +1,18 @@
-# Meridian
+# Midline
 
 **A quiet, private, self-hosted daily journal built for men navigating midlife (45–60).**
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-d9923b?style=flat&logo=buy-me-a-coffee&logoColor=141517)](https://buymeacoffee.com/marcjc1173)
+🌐 [midlinejournal.com](https://midlinejournal.com) · [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-d9923b?style=flat&logo=buy-me-a-coffee&logoColor=141517)](https://buymeacoffee.com/marcjc1173)
 
 ---
 
-## Why Meridian Exists
+## Why Midline Exists
 
 Midlife hits differently than people talk about. Somewhere between 45 and 60, a lot of men find themselves carrying a heavy mix of things at once—work and purpose shifting, bodies changing, kids growing up or leaving, parents aging, friendships quietly fading, and the feeling that you're supposed to just keep your head down and push through it.
 
 Writing helps. Getting what's looping in your head onto a page—without performing for anyone, without a subscription, and without a third-party company storing your most honest thoughts—takes some of the weight off.
 
-Most journaling apps are either cloud subscriptions, generic blank pages, or filled with prompts that don't fit where you actually are in life. **Meridian** is built to be the opposite:
+Most journaling apps are either cloud subscriptions, generic blank pages, or filled with prompts that don't fit where you actually are in life. **Midline** is built to be the opposite:
 
 - **100% self-hosted & private** — your entries and photos live in a single `./data` folder on your own machine or home server.
 - **Grounded, midlife-focused daily questions** — 64+ prompts written specifically for men in their 45–60s, for the days you sit down and don't know where to start.
@@ -23,39 +23,39 @@ Most journaling apps are either cloud subscriptions, generic blank pages, or fil
 ## Screenshots
 
 ### Today — Question of the Day, Entries with Photos & Back on This Day
-![Meridian Today View](./docs/screenshots/today.png)
+![Midline Today View](./docs/screenshots/today.png)
 
 ### Calendar View — Past Entries & Photo Indicators at a Glance
-![Meridian Calendar View](./docs/screenshots/calendar.png)
+![Midline Calendar View](./docs/screenshots/calendar.png)
 
 ---
 
 ## Features
 
-- **Daily Writing & Photos**: Exact date and time tracking (including backdating and multiple entries per day), drag-and-drop or mobile photo uploads with automatic thumbnails and full-screen lightbox.
+- **Daily Writing & Photos**: Exact date and time tracking (including backdating and multiple entries per day), direct mobile camera capture (**Take Photo**), drag-and-drop uploads with automatic thumbnails and full-screen lightbox.
 - **Question of the Day**: Consistent daily reflection prompt across 7 grounded themes (*Carrying Weight*, *Next Chapter*, *Health & Energy*, *Relationships*, *Perspective*, *Small Wins*, *Values & Legacy*), with one-click shuffle and custom prompt management.
 - **Back on This Day**: Automatically surfaces entries from the same date in previous years (plus a one-month throwback while your journal is new) so you can see how far you've come.
 - **Calendar View**: Monthly calendar where days with entries stand out visually with mood and photo indicators. Click any day to read or add entries.
 - **Mood, Energy, Search & Tags**: Plain-spoken 1-click mood check-in (*Good, Steady, Grateful, Stressed, Heavy, Low*), optional 1–5 energy level, full-text search, and tag filtering.
-- **Private Lock + Phone Passkeys**: Single-user password/PIN lock plus **WebAuthn Passkey** support so you can unlock on your phone with Face ID, Touch ID, or fingerprint.
-- **Warm & Grounded Themes**: Switch between **Dark Charcoal** and **Warm Paper** modes, with PWA support so you can add it to your phone's home screen.
+- **Private Lock, Auto-Lock & Phone Passkeys**: Single-user password/PIN lock, **WebAuthn Passkey** support (Face ID, Touch ID, fingerprint), configurable **Auto-Lock** (on close or inactivity timeout), and **Draft Auto-Save** so you never lose what you're writing.
+- **Warm & Grounded Themes + PWA**: Switch between **Dark Charcoal** and **Warm Paper** modes, and install as an app on your phone or desktop.
 
 ---
 
 ## Quick Start (Docker — Recommended)
 
 ```bash
-git clone https://github.com/marcjc1173/meridian-journal.git
-cd meridian-journal
+git clone https://github.com/marcjc1173/midline-journal.git
+cd midline-journal
 docker compose up -d --build
 ```
 
 Then open `http://localhost:3001` (or `http://<your-server-ip>:3001`) to set your password/PIN and start writing.
 
 ### Backups (Local & Google Drive via `rclone`)
-Everything—your SQLite database (`meridian.db`) and all uploaded photos—lives inside `./data`. Back up that single folder and you have your entire journal.
+Everything—your SQLite database (`midline.db`) and all uploaded photos—lives inside `./data`. Back up that single folder and you have your entire journal.
 
-Meridian also includes [`scripts/backup.sh`](./scripts/backup.sh), which takes a safe live SQLite snapshot (so the database is never copied mid-write) and syncs it along with your photos to **Google Drive** (or Dropbox, OneDrive, S3, Backblaze B2) using [`rclone`](https://rclone.org/):
+Midline also includes [`scripts/backup.sh`](./scripts/backup.sh), which takes a safe live SQLite snapshot (so the database is never copied mid-write) and syncs it along with your photos to **Google Drive** (or Dropbox, OneDrive, S3, Backblaze B2) using [`rclone`](https://rclone.org/):
 
 1. Install `rclone` (`sudo apt install rclone` or `brew install rclone`) and link Google Drive:
    ```bash
@@ -65,12 +65,12 @@ Meridian also includes [`scripts/backup.sh`](./scripts/backup.sh), which takes a
    *(Optional: wrap `gdrive` in an `rclone crypt` remote if you want end-to-end encrypted backups before upload.)*
 2. Run a backup anytime:
    ```bash
-   RCLONE_REMOTE="gdrive:MeridianBackup" ./scripts/backup.sh
+   RCLONE_REMOTE="gdrive:MidlineBackup" ./scripts/backup.sh
    ```
 3. Automate nightly backups with a `cron` job or `systemd` user timer:
    ```bash
    # Example crontab entry (2:00 AM daily):
-   0 2 * * * RCLONE_REMOTE="gdrive:MeridianBackup" /path/to/meridian-journal/scripts/backup.sh
+   0 2 * * * RCLONE_REMOTE="gdrive:MidlineBackup" /path/to/midline-journal/scripts/backup.sh
    ```
 
 ### Enabling Phone Passkeys (Face ID / Touch ID / Fingerprint)
@@ -86,8 +86,8 @@ Browsers require **HTTPS + a hostname** to use Passkeys outside `localhost`. Two
    Proxy your domain to port `3001` with HTTPS, and optionally set `RP_ID` and `ORIGIN` in `docker-compose.yml`:
    ```yaml
    environment:
-     - RP_ID=journal.yourdomain.com
-     - ORIGIN=https://journal.yourdomain.com
+     - RP_ID=journal.midlinejournal.com
+     - ORIGIN=https://journal.midlinejournal.com
    ```
 
 ---
@@ -116,7 +116,7 @@ Contributions are welcome—especially **new midlife reflection prompts** (see `
 
 ## Support
 
-Meridian is free and open-source. If it's been helpful to you and you'd like to support its development, you can [buy me a coffee](https://buymeacoffee.com/marcjc1173).
+Midline is free and open-source. If it's been helpful to you and you'd like to support its development, you can [buy me a coffee](https://buymeacoffee.com/marcjc1173).
 
 ## License
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meridian-shell-v1';
+const CACHE_NAME = 'midline-shell-v1';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

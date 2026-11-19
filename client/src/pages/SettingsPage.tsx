@@ -150,7 +150,7 @@ export function SettingsPage() {
           <div>
             <h2 className="text-base font-semibold">Passkey Unlock (Face ID / Touch ID / Fingerprint)</h2>
             <p className="mt-0.5 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-              Register your phone or computer so you can unlock Meridian in one tap without
+              Register your phone or computer so you can unlock Midline in one tap without
               typing your password. Note: when accessing from your phone over your network,
               browsers require HTTPS (for example via Tailscale HTTPS or a reverse proxy like
               Caddy/Nginx).
@@ -272,7 +272,7 @@ export function SettingsPage() {
           <div>
             <div className="text-sm font-medium">Lock when browser or app closes</div>
             <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Require unlocking again whenever you reopen Meridian.
+              Require unlocking again whenever you reopen Midline.
             </div>
           </div>
           <input

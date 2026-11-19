@@ -73,8 +73,8 @@ export function AuthPage() {
         }}
       >
         <div className="flex flex-col items-center text-center mb-7">
-          <img src="/icon.svg" alt="Meridian" className="h-12 w-12 rounded-xl mb-3" />
-          <h1 className="text-2xl font-bold tracking-tight">Meridian</h1>
+          <img src="/icon.svg" alt="Midline" className="h-12 w-12 rounded-xl mb-3" />
+          <h1 className="text-2xl font-bold tracking-tight">Midline</h1>
           <p className="mt-1.5 text-sm" style={{ color: 'var(--text-muted)' }}>
             {isSetup
               ? 'Set up your private journal. Everything stays on your own server.'
