@@ -20,6 +20,16 @@ Most journaling apps are either cloud subscriptions, generic blank pages, or fil
 
 ---
 
+## Screenshots
+
+### Today — Question of the Day, Entries with Photos & Back on This Day
+![Meridian Today View](./docs/screenshots/today.png)
+
+### Calendar View — Past Entries & Photo Indicators at a Glance
+![Meridian Calendar View](./docs/screenshots/calendar.png)
+
+---
+
 ## Features
 
 - **Daily Writing & Photos**: Exact date and time tracking (including backdating and multiple entries per day), drag-and-drop or mobile photo uploads with automatic thumbnails and full-screen lightbox.
