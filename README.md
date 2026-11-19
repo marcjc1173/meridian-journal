@@ -42,8 +42,26 @@ docker compose up -d --build
 
 Then open `http://localhost:3001` (or `http://<your-server-ip>:3001`) to set your password/PIN and start writing.
 
-### Backups
+### Backups (Local & Google Drive via `rclone`)
 Everything—your SQLite database (`meridian.db`) and all uploaded photos—lives inside `./data`. Back up that single folder and you have your entire journal.
+
+Meridian also includes [`scripts/backup.sh`](./scripts/backup.sh), which takes a safe live SQLite snapshot (so the database is never copied mid-write) and syncs it along with your photos to **Google Drive** (or Dropbox, OneDrive, S3, Backblaze B2) using [`rclone`](https://rclone.org/):
+
+1. Install `rclone` (`sudo apt install rclone` or `brew install rclone`) and link Google Drive:
+   ```bash
+   rclone config
+   # Choose: n (New remote) → Name: gdrive → Storage: drive (Google Drive)
+   ```
+   *(Optional: wrap `gdrive` in an `rclone crypt` remote if you want end-to-end encrypted backups before upload.)*
+2. Run a backup anytime:
+   ```bash
+   RCLONE_REMOTE="gdrive:MeridianBackup" ./scripts/backup.sh
+   ```
+3. Automate nightly backups with a `cron` job or `systemd` user timer:
+   ```bash
+   # Example crontab entry (2:00 AM daily):
+   0 2 * * * RCLONE_REMOTE="gdrive:MeridianBackup" /path/to/meridian-journal/scripts/backup.sh
+   ```
 
 ### Enabling Phone Passkeys (Face ID / Touch ID / Fingerprint)
 Browsers require **HTTPS + a hostname** to use Passkeys outside `localhost`. Two easy ways to enable HTTPS for your self-hosted instance:
