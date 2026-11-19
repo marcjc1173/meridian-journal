@@ -1,0 +1,16 @@
+services:
+  meridian:
+    build: .
+    container_name: meridian-journal
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/data
+    environment:
+      - PORT=3001
+      - DATA_DIR=/data
+      # Uncomment when serving over HTTPS (required for phone Passkeys outside localhost):
+      # - RP_ID=journal.yourdomain.com
+      # - ORIGIN=https://journal.yourdomain.com
+      # - RP_NAME=Meridian Journal

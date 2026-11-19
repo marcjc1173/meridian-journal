@@ -1,0 +1,333 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Check,
+  Fingerprint,
+  KeyRound,
+  Loader2,
+  Moon,
+  Smartphone,
+  Sun,
+  Trash2,
+} from 'lucide-react';
+import { api } from '../api';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import type { PasskeyItem } from '../types';
+
+export function SettingsPage() {
+  const { status, refresh } = useAuth();
+  const { theme, setTheme } = useTheme();
+
+  const [displayName, setDisplayName] = useState(status?.displayName || '');
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
+  const [deviceName, setDeviceName] = useState('');
+  const [registering, setRegistering] = useState(false);
+  const [passkeyMsg, setPasskeyMsg] = useState('');
+  const [passkeyErr, setPasskeyErr] = useState('');
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [pwMsg, setPwMsg] = useState('');
+  const [pwErr, setPwErr] = useState('');
+
+  const loadPasskeys = useCallback(async () => {
+    try {
+      const res = await api.listPasskeys();
+      setPasskeys(res.passkeys);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPasskeys();
+  }, [loadPasskeys]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await api.updateProfile(displayName);
+    await refresh();
+    setProfileSaved(true);
+    setTimeout(() => setProfileSaved(false), 2000);
+  };
+
+  const handleRegisterPasskey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasskeyMsg('');
+    setPasskeyErr('');
+    setRegistering(true);
+    try {
+      const label = deviceName.trim() || 'My Phone / Device';
+      await api.registerPasskey(label);
+      setDeviceName('');
+      setPasskeyMsg(`Passkey "${label}" registered! You can now unlock with Face ID / fingerprint.`);
+      await loadPasskeys();
+      await refresh();
+    } catch (err) {
+      setPasskeyErr(
+        err instanceof Error
+          ? err.message
+          : 'Could not register passkey. Passkeys require localhost or HTTPS.'
+      );
+    } finally {
+      setRegistering(false);
+    }
+  };
+
+  const handleDeletePasskey = async (pk: PasskeyItem) => {
+    if (!window.confirm(`Remove passkey "${pk.name}"?`)) return;
+    await api.deletePasskey(pk.id);
+    await loadPasskeys();
+    await refresh();
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwMsg('');
+    setPwErr('');
+    try {
+      await api.changePassword(currentPassword, newPassword);
+      setCurrentPassword('');
+      setNewPassword('');
+      setPwMsg('Password updated.');
+    } catch (err) {
+      setPwErr(err instanceof Error ? err.message : 'Could not update password.');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>
+          Manage phone passkeys, privacy, and appearance.
+        </p>
+      </header>
+
+      {/* Passkeys (Phone Unlock) */}
+      <section
+        className="rounded-xl border p-5 space-y-4"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className="rounded-lg p-2"
+            style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}
+          >
+            <Fingerprint className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold">Passkey Unlock (Face ID / Touch ID / Fingerprint)</h2>
+            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+              Register your phone or computer so you can unlock Meridian in one tap without
+              typing your password. Note: when accessing from your phone over your network,
+              browsers require HTTPS (for example via Tailscale HTTPS or a reverse proxy like
+              Caddy/Nginx).
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleRegisterPasskey} className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={deviceName}
+            onChange={(e) => setDeviceName(e.target.value)}
+            placeholder="Device label (e.g. iPhone, Pixel, Laptop)"
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={registering}
+            className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-stone-950 transition disabled:opacity-50"
+            style={{ backgroundColor: 'var(--accent)' }}
+          >
+            {registering ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Smartphone className="h-4 w-4" />
+            )}
+            Add This Device
+          </button>
+        </form>
+
+        {passkeyMsg && (
+          <div className="text-xs font-medium text-emerald-500">{passkeyMsg}</div>
+        )}
+        {passkeyErr && (
+          <div className="text-xs font-medium" style={{ color: 'var(--danger)' }}>
+            {passkeyErr}
+          </div>
+        )}
+
+        {passkeys.length > 0 && (
+          <div className="space-y-2 pt-1">
+            {passkeys.map((pk) => (
+              <div
+                key={pk.id}
+                className="flex items-center justify-between rounded-lg border px-3.5 py-2.5 text-sm"
+                style={{
+                  backgroundColor: 'var(--bg-subtle)',
+                  borderColor: 'var(--border)',
+                }}
+              >
+                <div>
+                  <div className="font-medium">{pk.name}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Added {new Date(pk.created_at + 'Z').toLocaleDateString()}
+                    {pk.last_used_at
+                      ? ` · Last used ${new Date(pk.last_used_at + 'Z').toLocaleDateString()}`
+                      : ''}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeletePasskey(pk)}
+                  className="rounded-lg p-1.5 transition hover:opacity-80"
+                  style={{ color: 'var(--text-muted)' }}
+                  title="Remove passkey"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Appearance */}
+      <section
+        className="rounded-xl border p-5 space-y-3"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <h2 className="text-base font-semibold">Appearance</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setTheme('dark')}
+            className="flex items-center gap-2.5 rounded-xl border p-3.5 text-left text-sm font-medium transition"
+            style={{
+              borderColor: theme === 'dark' ? 'var(--accent)' : 'var(--border)',
+              backgroundColor: theme === 'dark' ? 'var(--accent-soft)' : 'transparent',
+            }}
+          >
+            <Moon className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+            Dark Charcoal
+          </button>
+          <button
+            type="button"
+            onClick={() => setTheme('light')}
+            className="flex items-center gap-2.5 rounded-xl border p-3.5 text-left text-sm font-medium transition"
+            style={{
+              borderColor: theme === 'light' ? 'var(--accent)' : 'var(--border)',
+              backgroundColor: theme === 'light' ? 'var(--accent-soft)' : 'transparent',
+            }}
+          >
+            <Sun className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+            Warm Paper
+          </button>
+        </div>
+      </section>
+
+      {/* Profile */}
+      <section
+        className="rounded-xl border p-5 space-y-3"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <h2 className="text-base font-semibold">Profile</h2>
+        <form onSubmit={handleSaveProfile} className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Your first name"
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)',
+            }}
+          />
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            {profileSaved ? <Check className="h-4 w-4 text-emerald-500" /> : null}
+            {profileSaved ? 'Saved' : 'Save Name'}
+          </button>
+        </form>
+      </section>
+
+      {/* Change Password */}
+      <section
+        className="rounded-xl border p-5 space-y-3"
+        style={{
+          backgroundColor: 'var(--bg-elevated)',
+          borderColor: 'var(--border)',
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4" style={{ color: 'var(--accent)' }} />
+          <h2 className="text-base font-semibold">Change Password / PIN</h2>
+        </div>
+        <form onSubmit={handleChangePassword} className="space-y-2.5 max-w-sm">
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Current password or PIN"
+            required
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)',
+            }}
+          />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New password or PIN (4+ characters)"
+            required
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            style={{
+              backgroundColor: 'var(--bg-subtle)',
+              borderColor: 'var(--border)',
+              color: 'var(--text)',
+            }}
+          />
+          {pwMsg && <div className="text-xs font-medium text-emerald-500">{pwMsg}</div>}
+          {pwErr && (
+            <div className="text-xs font-medium" style={{ color: 'var(--danger)' }}>
+              {pwErr}
+            </div>
+          )}
+          <button
+            type="submit"
+            className="rounded-lg border px-4 py-2 text-sm font-medium"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            Update Password
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Meridian Journal",
+  "short_name": "Meridian",
+  "description": "Private self-hosted daily journal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141517",
+  "theme_color": "#141517",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
